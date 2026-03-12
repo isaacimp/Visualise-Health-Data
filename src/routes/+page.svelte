@@ -59,7 +59,7 @@
 </script>
 
 <div class="title">
-  <h1>Quantified Self</h1>
+  <h1>Quantified Self Dashboard</h1>
 </div>
 <div class="dashboard">
   <ChartCard title="Revenue Over Time">
@@ -70,24 +70,6 @@
   </ChartCard>
   <ChartCard title="Activity Heatmap">
     <Heatmap data={heatmapData} />
-  </ChartCard>
-  <ChartCard title="Revenue Over Time">
-    <LineChart data={data} />
-  </ChartCard>
-  <ChartCard title="Monthly Sales">
-    <BarChart data={sales} color="#6366f1" />
-  </ChartCard>
-  <ChartCard title="Revenue Over Time">
-    <LineChart data={data} />
-  </ChartCard>
-  <ChartCard title="Revenue Over Time">
-    <LineChart data={data} />
-  </ChartCard>
-  <ChartCard title="Monthly Sales">
-    <BarChart data={sales} color="#6366f1" />
-  </ChartCard>
-  <ChartCard title="Revenue Over Time">
-    <LineChart data={data} />
   </ChartCard>
 </div>
 
