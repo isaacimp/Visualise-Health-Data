@@ -15,9 +15,9 @@
 <style>
   .card {
     background: #ffffff;
-    border: 1px solid #000000;
-    border-radius: 12px;
-    padding: 1.5rem;
+    border: 0.5px solid #000000;
+    border-radius: 2px;
+    padding: 0.3rem;
     display: flex;
     flex-direction: column;
     gap: 1rem;

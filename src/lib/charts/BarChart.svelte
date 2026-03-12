@@ -125,6 +125,6 @@
   $: if (displayData) draw();
 </script>
 
-<div bind:this={container} style="position: relative; width: 100%;">
+<div bind:this={container} style="position: relative; width: 100%; height: 100%;">
   <svg bind:this={svgEl} style="display: block;" />
 </div>
