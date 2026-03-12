@@ -2,6 +2,7 @@
   import LineChart from '$lib/charts/LineChart.svelte';
   import ChartCard from '$lib/components/ChartCard.svelte';
   import BarChart from '$lib/charts/BarChart.svelte';
+  import Heatmap from '$lib/charts/Heatmap.svelte';
 
   const sales = [
     { label: 'Jan', value: 420 },
@@ -38,6 +39,23 @@
     { label: 'Dec', value: 35 },
   ];
 
+  // Heatmap data: days of week vs hours of day
+  const heatmapData = (() => {
+    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const hours = ['Morning', 'Afternoon', 'Evening', 'Night'];
+    const result = [];
+    for (const day of days) {
+      for (const hour of hours) {
+        result.push({
+          group: day,
+          variable: hour,
+          value: Math.floor(Math.random() * 90) + 10
+        });
+      }
+    }
+    return result;
+  })();
+
 </script>
 
 <div class="title">
@@ -48,27 +66,27 @@
     <LineChart data={data} />
   </ChartCard>
   <ChartCard title="Monthly Sales">
-  <BarChart data={sales} color="#6366f1" />
-</ChartCard>
-<ChartCard title="Revenue Over Time">
+    <BarChart data={sales} color="#6366f1" />
+  </ChartCard>
+  <ChartCard title="Activity Heatmap">
+    <Heatmap data={heatmapData} />
+  </ChartCard>
+  <ChartCard title="Revenue Over Time">
+    <LineChart data={data} />
+  </ChartCard>
+  <ChartCard title="Monthly Sales">
+    <BarChart data={sales} color="#6366f1" />
+  </ChartCard>
+  <ChartCard title="Revenue Over Time">
     <LineChart data={data} />
   </ChartCard>
   <ChartCard title="Revenue Over Time">
     <LineChart data={data} />
   </ChartCard>
   <ChartCard title="Monthly Sales">
-  <BarChart data={sales} color="#6366f1" />
-</ChartCard>
-<ChartCard title="Revenue Over Time">
-    <LineChart data={data} />
+    <BarChart data={sales} color="#6366f1" />
   </ChartCard>
   <ChartCard title="Revenue Over Time">
-    <LineChart data={data} />
-  </ChartCard>
-  <ChartCard title="Monthly Sales">
-  <BarChart data={sales} color="#6366f1" />
-</ChartCard>
-<ChartCard title="Revenue Over Time">
     <LineChart data={data} />
   </ChartCard>
 </div>
