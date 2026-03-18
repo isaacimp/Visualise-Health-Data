@@ -17,3 +17,4 @@ sync-scripts/downloaded_data/
 sync-scripts/extracted_data/
 sync-scripts/*.log
 sync-scripts/HOW_TO_ADD_NEW_DATA_TYPES.md
+sync-scripts/COMPLETE_GUIDE.md
