@@ -55,9 +55,9 @@
       .call(g => g.select('.domain').remove())
       .call(g => g.selectAll('text').attr('fill', '#888'));
 
-    // Build color scale
+    // Build color scale - Professional blue-gray gradient
     const myColor = d3.scaleSequential()
-      .interpolator(d3.interpolateInferno)
+      .interpolator(d3.interpolatePuBu)  // Professional blues
       .domain([1, d3.max(data, d => d.value) || 100]);
 
     // Create tooltip

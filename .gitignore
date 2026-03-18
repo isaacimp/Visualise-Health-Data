@@ -8,3 +8,11 @@ node_modules
 !.env.example
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+data.sqlite
+
+# Health Connect Sync
+sync-scripts/credentials.json
+sync-scripts/token.json
+sync-scripts/downloaded_data/
+sync-scripts/extracted_data/
+sync-scripts/*.log

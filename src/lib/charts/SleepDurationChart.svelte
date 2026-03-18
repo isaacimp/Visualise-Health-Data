@@ -1,10 +1,11 @@
 <script lang="ts">
-  import { onMount, onDestroy } from 'svelte';
+  import { onDestroy, onMount } from 'svelte';
   import * as d3 from 'd3';
 
   export let data: { label: string; value: number }[] = [];
-  export let color: string = '#6366f1';
-  export let maxPoints: number = 50;
+  export let color: string = '#8b5cf6';
+  export let maxPoints: number = 30;
+  export let targetHours: number = 8;
 
   let svgEl: SVGSVGElement;
   let container: HTMLDivElement;
@@ -17,7 +18,7 @@
 
     const width = container.clientWidth;
     const height = container.clientHeight;
-    const margin = { top: 20, right: 20, bottom: 40, left: 50 };
+    const margin = { top: 30, right: 20, bottom: 40, left: 50 };
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
 
@@ -31,32 +32,56 @@
       .attr('transform', `translate(${margin.left},${margin.top})`);
 
     // Scales
-    const x = d3.scalePoint()
-      .domain(displayData.map(d => d.label))
+    const x = d3.scaleLinear()
+      .domain([0, displayData.length - 1])
       .range([0, innerWidth]);
 
-    // Dynamic Y-axis range based on data, with padding
-    const minValue = d3.min(displayData, d => d.value)!;
-    const maxValue = d3.max(displayData, d => d.value)!;
-    const padding = (maxValue - minValue) * 0.1; // 10% padding
+    // Set Y-axis to start from a reasonable minimum (e.g., 4 hours)
+    const minValue = Math.min(4, d3.min(displayData, d => d.value)! - 1);
+    const maxValue = Math.max(targetHours + 1, d3.max(displayData, d => d.value)! + 0.5);
 
     const y = d3.scaleLinear()
-      .domain([Math.max(0, minValue - padding), maxValue + padding])
+      .domain([minValue, maxValue])
       .nice()
       .range([innerHeight, 0]);
 
     // Gridlines
     g.append('g')
-      .call(d3.axisLeft(y).tickSize(-innerWidth).tickFormat(() => ''))
+      .attr('class', 'grid')
+      .call(
+        d3.axisLeft(y)
+          .tickSize(-innerWidth)
+          .tickFormat(() => '')
+      )
       .call(g => g.select('.domain').remove())
       .call(g => g.selectAll('.tick line')
         .attr('stroke', '#e5e7eb')
         .attr('stroke-width', 1)
       );
 
-    // Area fill under line
+    // Target line
+    g.append('line')
+      .attr('x1', 0)
+      .attr('x2', innerWidth)
+      .attr('y1', y(targetHours))
+      .attr('y2', y(targetHours))
+      .attr('stroke', '#10b981')
+      .attr('stroke-width', 2)
+      .attr('stroke-dasharray', '6,4')
+      .attr('opacity', 0.6);
+
+    g.append('text')
+      .attr('x', innerWidth - 5)
+      .attr('y', y(targetHours) - 8)
+      .attr('fill', '#10b981')
+      .attr('text-anchor', 'end')
+      .style('font-size', '12px')
+      .style('font-weight', '600')
+      .text(`Goal: ${targetHours}h`);
+
+    // Area
     const area = d3.area<{ label: string; value: number }>()
-      .x(d => x(d.label)!)
+      .x((d, i) => x(i))
       .y0(innerHeight)
       .y1(d => y(d.value))
       .curve(d3.curveCatmullRom);
@@ -64,12 +89,12 @@
     g.append('path')
       .datum(displayData)
       .attr('fill', color)
-      .attr('fill-opacity', 0.15)
+      .attr('opacity', 0.2)
       .attr('d', area);
 
     // Line
     const line = d3.line<{ label: string; value: number }>()
-      .x(d => x(d.label)!)
+      .x((d, i) => x(i))
       .y(d => y(d.value))
       .curve(d3.curveCatmullRom);
 
@@ -80,40 +105,43 @@
       .attr('stroke-width', 2.5)
       .attr('d', line);
 
-    // Dots
-    g.selectAll('circle')
+    // Points
+    g.selectAll('.dot')
       .data(displayData)
       .join('circle')
-      .attr('cx', d => x(d.label)!)
-      .attr('cy', d => y(d.value))
-      .attr('r', Math.max(3, 5 - displayData.length / 20))
-      .attr('fill', 'white')
-      .attr('stroke', color)
-      .attr('stroke-width', 2.5)
-      .on('mouseover', function (event, d) {
-        d3.select(this).attr('r', 6).attr('fill', color);
-        tooltip
-          .style('opacity', 1)
-          .html(`<strong>${d.label}</strong><br/>${d.value.toFixed(2)}`)
-          .style('left', `${event.offsetX + 10}px`)
-          .style('top', `${event.offsetY - 28}px`);
-      })
-      .on('mouseout', function () {
-        d3.select(this)
-          .attr('r', Math.max(3, 5 - displayData.length / 20))
-          .attr('fill', 'white');
-        tooltip.style('opacity', 0);
-      });
+        .attr('class', 'dot')
+        .attr('cx', (d, i) => x(i))
+        .attr('cy', d => y(d.value))
+        .attr('r', 4)
+        .attr('fill', d => d.value >= targetHours ? '#10b981' : d.value >= targetHours - 1 ? '#f59e0b' : '#ef4444')
+        .attr('stroke', 'white')
+        .attr('stroke-width', 2)
+        .on('mouseover', function(event, d) {
+          d3.select(this).attr('r', 6);
+          const hours = Math.floor(d.value);
+          const minutes = Math.round((d.value - hours) * 60);
+          const timeStr = minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`;
+          tooltip
+            .style('opacity', 1)
+            .html(`<strong>${d.label}</strong><br/>${timeStr}`)
+            .style('left', `${event.offsetX + 10}px`)
+            .style('top', `${event.offsetY - 28}px`);
+        })
+        .on('mouseout', function() {
+          d3.select(this).attr('r', 4);
+          tooltip.style('opacity', 0);
+        });
 
     // X Axis
-    const tickCount = Math.floor(innerWidth / 60); // one tick per ~60px
+    const tickCount = Math.floor(innerWidth / 60);
     const everyNth = Math.ceil(displayData.length / tickCount);
 
     g.append('g')
       .attr('transform', `translate(0,${innerHeight})`)
       .call(
         d3.axisBottom(x)
-          .tickValues(displayData.filter((_, i) => i % everyNth === 0).map(d => d.label))
+          .tickValues(displayData.map((_, i) => i).filter((_, i) => i % everyNth === 0))
+          .tickFormat((d) => displayData[d as number].label)
           .tickSize(0)
       )
       .call(g => g.select('.domain').attr('stroke', '#e5e7eb'))
@@ -132,6 +160,17 @@
         .style('font-size', '12px')
       )
       .call(g => g.selectAll('.tick line').remove());
+
+    // Y Axis Label
+    g.append('text')
+      .attr('transform', 'rotate(-90)')
+      .attr('x', -innerHeight / 2)
+      .attr('y', -35)
+      .attr('fill', '#6b7280')
+      .attr('text-anchor', 'middle')
+      .style('font-size', '12px')
+      .style('font-weight', '500')
+      .text('Hours');
 
     // Tooltip
     d3.select(container).selectAll('.tooltip').remove();
@@ -157,7 +196,9 @@
     draw();
   });
 
-  onDestroy(() => observer?.disconnect());
+  onDestroy(() => {
+    observer?.disconnect();
+  });
 
   $: if (displayData) draw();
 </script>

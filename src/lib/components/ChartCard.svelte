@@ -14,27 +14,32 @@
 
 <style>
   .card {
-    background: #ffffff;
-    border: 0.5px solid #000000;
+    background: #fefdfb;
+    border: 1px solid #d6d3d1;
     border-radius: 2px;
-    padding: 0.3rem;
+    padding: 1rem;
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.5rem;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   }
 
   h2 {
     margin: 0;
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: #aaa;
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: #1c1917;
+    letter-spacing: 0.02em;
+    font-family: 'Georgia', 'Times New Roman', serif;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    border-bottom: 1px solid #e7e5e4;
+    padding-bottom: 0.5rem;
   }
 
   .chart-area {
     position: relative;
     width: 100%;
     flex: 1;
+    min-height: 0;
   }
 </style>
